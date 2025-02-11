@@ -1,89 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Model Generator</title>
-    <script>
-        function generateModel() {
-            let prompt = document.getElementById("meshyprompt").value;
-            let apiKey = "msy_RkTgnNf69VGBj5qIjp2JO9DlLEId7kQQICPx"; // Replace with your actual Meshy AI API Key
+<script>
+    function generateModel() {
+        let prompt = document.getElementById("meshyprompt").value;
+        let apiKey = "msy_RkTgnNf69VGBj5qIjp2JO9DlLEId7kQQICPx"; // Replace with your actual API key
 
-            fetch("https://api.meshy.ai/openapi/v2/text-to-3d", {
-                method: "POST",
-                headers: {
-                    "Authorization": "Bearer " + apiKey,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    mode: "preview",
-                    prompt: prompt,
-                    art_style: "realistic",
-                    should_remesh: true
-                })
+        fetch("https://api.meshy.ai/openapi/v2/text-to-3d", {
+            method: "POST",
+            headers: {
+                "Authorization": "Bearer " + apiKey,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                mode: "preview",
+                prompt: prompt,
+                art_style: "realistic",
+                should_remesh: true
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log("API Response:", data);
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("API Response:", data); // Debugging in Console
 
-                if (data.preview_image) {
-                    document.getElementById("previewImage").src = data.preview_image;
-                    document.getElementById("previewImage").style.display = "block";
-                }
+            if (data.error) {
+                document.getElementById("output").innerHTML = `<p>Error: ${data.error}</p>`;
+            } else if (data.preview_image) {
+                document.getElementById("previewImage").src = data.preview_image;
+                document.getElementById("previewImage").style.display = "block";
+            }
 
-                if (data.output) {
-                    document.getElementById("output").innerHTML = `
-                        <model-viewer src="${data.output}" auto-rotate camera-controls 
-                            style="width: 500px; height: 500px;">
-                        </model-viewer>
-                    `;
-                } else {
-                    document.getElementById("output").innerHTML = `<p>Error: No model generated.</p>`;
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById("output").innerHTML = `<p>An error occurred. Please try again.</p>`;
-            });
-        }
-    </script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        input, button {
-            font-size: 18px;
-            padding: 10px;
-            margin: 10px;
-        }
-        #previewImage {
-            width: 100%;
-            max-width: 500px;
-            display: none;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            padding: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <h2>Generate Your 3D Model</h2>
-
-    <!-- Image box for preview -->
-    <img id="previewImage" src="" alt="3D Model Preview">
-
-    <!-- Input box for user prompt -->
-    <input type="text" id="meshyprompt" placeholder="Enter a prompt">
-    <button onclick="generateModel()">Generate</button>
-
-    <!-- 3D Model Viewer Output -->
-    <div id="output"></div>
-
-    <!-- Include Google's Model Viewer -->
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-
-</body>
-</html>
+            if (data.output) {
+                document.getElementById("output").innerHTML = `
+                    <model-viewer src="${data.output}" auto-rotate camera-controls 
+                        style="width: 500px; height: 500px;">
+                    </model-viewer>
+                `;
+            } else {
+                document.getElementById("output").innerHTML = `<p>Error: No model generated.</p>`;
+            }
+        })
+        .catch(error => {
+            console.error("Fetch Error:", error);
+            document.getElementById("output").innerHTML = `<p>Network error. Check console for details.</p>`;
+        });
+    }
+</script>
